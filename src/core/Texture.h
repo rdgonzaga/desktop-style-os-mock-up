@@ -3,7 +3,7 @@
 #include <string>
 
 struct Texture {
-    unsigned int id = 0;  // 0 means the image couldn't be loaded
+    unsigned int id = 0;
     int width = 0;
     int height = 0;
 };

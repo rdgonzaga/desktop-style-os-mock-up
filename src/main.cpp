@@ -8,6 +8,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Config.h"
+#include "core/Apps.h"
 #include "core/Power.h"
 #include "core/Theme.h"
 #include "shell/Desktop.h"
@@ -30,7 +31,7 @@ void loadFont() {
 }
 
 int main(int, char** argv) {
-    // run from the exe's own folder so assets/ is found however the app was launched
+    // so assets/ is found no matter where the exe is started from
     std::error_code ignored;
     std::filesystem::current_path(std::filesystem::absolute(argv[0]).parent_path(), ignored);
 
@@ -50,12 +51,12 @@ int main(int, char** argv) {
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
-    // the X button and Alt+F4 do nothing; the spec wants PWR to be the only way out
+    // only the PWR button may close the app, so X and Alt+F4 are ignored
     glfwSetWindowCloseCallback(window, [](GLFWwindow* w) { glfwSetWindowShouldClose(w, GLFW_FALSE); });
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui::GetIO().IniFilename = nullptr;  // every boot starts with a fresh window layout
+    ImGui::GetIO().IniFilename = nullptr;
     theme::apply();
     loadFont();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -66,7 +67,7 @@ int main(int, char** argv) {
     while (power::on) {
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
-            ImGui_ImplGlfw_Sleep(10);  // nothing to draw while minimized
+            ImGui_ImplGlfw_Sleep(10);
             continue;
         }
 
@@ -74,8 +75,9 @@ int main(int, char** argv) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // layers are drawn back to front
+        // back to front
         desktop::draw();
+        apps::drawWindows();
         taskbar::draw();
 
         ImGui::Render();

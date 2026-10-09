@@ -12,7 +12,6 @@ Texture loadTexture(const std::string& path) {
         return texture;
     }
 
-    // only GL 1.1 calls here, which opengl32 exports directly, so no GL loader is needed
     glGenTextures(1, &texture.id);
     glBindTexture(GL_TEXTURE_2D, texture.id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

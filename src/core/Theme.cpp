@@ -46,6 +46,13 @@ void apply() {
     colors[ImGuiCol_ModalWindowDimBg] = rgb(0, 0, 0, 0.35f);
 }
 
+bool beginWindow(const char* title, bool* open, ImGuiWindowFlags flags) {
+    ImGui::PushStyleColor(ImGuiCol_Text, TITLE_TEXT);
+    bool visible = ImGui::Begin(title, open, flags);
+    ImGui::PopStyleColor();
+    return visible;
+}
+
 bool beginModal(const char* title, ImGuiWindowFlags flags) {
     ImGui::PushStyleColor(ImGuiCol_Text, TITLE_TEXT);
     bool open = ImGui::BeginPopupModal(title, nullptr, flags);

@@ -2,13 +2,12 @@
 
 #include "imgui.h"
 
-// Windows XP "Luna" look, to match the wallpaper.
 namespace theme {
 
 void apply();
 
-// ImGui draws title text in the same color as body text, so XP's white text on a
-// blue title bar needs the color swapped just while the title is drawn.
+// ImGui draws title text in the body text color, so these swap in white for the title bar
+bool beginWindow(const char* title, bool* open, ImGuiWindowFlags flags = 0);
 bool beginModal(const char* title, ImGuiWindowFlags flags = 0);
 
 }

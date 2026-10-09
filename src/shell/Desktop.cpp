@@ -17,8 +17,7 @@ const ImVec2 BADGE_PADDING(10.0f, 5.0f);
 
 Texture wallpaper;
 
-// Scales the image to cover the whole screen and crops whatever spills over,
-// so it never stretches when the window is resized.
+// cropped instead of stretched when the window isn't 16:9
 void drawWallpaper(ImDrawList* draw, ImVec2 screen) {
     if (!wallpaper.id) {
         ImU32 sky = IM_COL32(30, 80, 170, 255);
