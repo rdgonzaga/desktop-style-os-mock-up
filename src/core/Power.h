@@ -2,6 +2,8 @@
 
 namespace power {
 
-inline bool on = true;
+enum class State { Booting, Running, Off };
+
+inline State state = State::Booting;
 
 }

@@ -11,6 +11,7 @@
 #include "core/Apps.h"
 #include "core/Power.h"
 #include "core/Theme.h"
+#include "shell/Boot.h"
 #include "shell/Desktop.h"
 #include "shell/Taskbar.h"
 
@@ -56,8 +57,9 @@ int main(int, char** argv) {
     ImGui_ImplOpenGL3_Init("#version 130");
 
     desktop::init();
+    power::state = config.bootScreens ? power::State::Booting : power::State::Running;
 
-    while (power::on) {
+    while (power::state != power::State::Off) {
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
             ImGui_ImplGlfw_Sleep(10);
@@ -68,10 +70,14 @@ int main(int, char** argv) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // back to front
-        desktop::draw();
-        apps::drawWindows();
-        taskbar::draw();
+        if (power::state == power::State::Booting) {
+            boot::draw();
+        } else {
+            // back to front
+            desktop::draw();
+            apps::drawWindows();
+            taskbar::draw();
+        }
 
         ImGui::Render();
         int width = 0;

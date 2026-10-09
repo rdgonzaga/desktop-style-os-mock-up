@@ -46,6 +46,7 @@ add_executable(CsopesyOS
     src/core/Icons.cpp
     src/core/Texture.cpp
     src/core/Theme.cpp
+    src/shell/Boot.cpp
     src/shell/Desktop.cpp
     src/shell/Taskbar.cpp)
 target_include_directories(CsopesyOS PRIVATE src)

@@ -180,7 +180,7 @@ void startMenu() {
         ImVec2 header = ImGui::GetCursorScreenPos();
         draw->AddRectFilled(header, header + ImVec2(MENU_WIDTH, 56), MENU_HEADER, 6.0f, ImDrawFlags_RoundCornersTop);
         draw->AddRectFilled(header + ImVec2(12, 10), header + ImVec2(48, 46), IM_COL32(245, 160, 60, 255), 4.0f);
-        draw->AddRect(header + ImVec2(12, 10), header + ImVec2(48, 46), WHITE, 4.0f, 0, 2.0f);
+        draw->AddRect(header + ImVec2(12, 10), header + ImVec2(48, 46), WHITE, 4.0f, 2.0f);
         draw->AddCircleFilled(header + ImVec2(30, 22), 6.0f, WHITE);
         draw->AddRectFilled(header + ImVec2(21, 31), header + ImVec2(39, 43), WHITE, 6.0f, ImDrawFlags_RoundCornersTop);
         draw->AddText(ImGui::GetFont(), 20.0f, header + ImVec2(60, 17), WHITE, "CSOPESY User");
@@ -226,7 +226,7 @@ void shutdownDialog() {
     ImGui::Text("Are you sure you want to shut down %s?", config.osName.c_str());
     ImGui::Spacing();
     if (ImGui::Button("Turn Off", ImVec2(110, 0))) {
-        power::on = false;
+        power::state = power::State::Off;
     }
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(110, 0)) || ImGui::IsKeyPressed(ImGuiKey_Escape)) {

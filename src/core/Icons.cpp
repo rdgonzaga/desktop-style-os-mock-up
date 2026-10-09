@@ -10,7 +10,7 @@ void drawTerminal(ImDrawList* draw, ImVec2 c, float s) {
     auto p = [&](float x, float y) { return ImVec2(c.x + x * s, c.y + y * s); };
     draw->AddRectFilled(p(-14, -12), p(14, 12), IM_COL32(20, 20, 20, 255), 3 * s);
     draw->AddRectFilled(p(-14, -12), p(14, -7), IM_COL32(90, 90, 90, 255), 3 * s, ImDrawFlags_RoundCornersTop);
-    draw->AddRect(p(-14, -12), p(14, 12), IM_COL32(170, 170, 170, 255), 3 * s, 0, 1.2f * s);
+    draw->AddRect(p(-14, -12), p(14, 12), IM_COL32(170, 170, 170, 255), 3 * s, 1.2f * s);
     ImVec2 prompt[] = {p(-9, -3), p(-4, 1), p(-9, 5)};
     draw->AddPolyline(prompt, 3, GREEN, 0, 2.0f * s);
     draw->AddLine(p(-1, 6), p(7, 6), GREEN, 2.0f * s);
@@ -52,7 +52,7 @@ void drawWindow(ImDrawList* draw, ImVec2 c, float s) {
     auto p = [&](float x, float y) { return ImVec2(c.x + x * s, c.y + y * s); };
     draw->AddRectFilled(p(-13, -11), p(13, 11), WHITE, 2 * s);
     draw->AddRectFilled(p(-13, -11), p(13, -5), IM_COL32(0, 84, 227, 255), 2 * s, ImDrawFlags_RoundCornersTop);
-    draw->AddRect(p(-13, -11), p(13, 11), IM_COL32(0, 60, 116, 255), 2 * s, 0, 1.2f * s);
+    draw->AddRect(p(-13, -11), p(13, 11), IM_COL32(0, 60, 116, 255), 2 * s, 1.2f * s);
 }
 
 void drawFile(ImDrawList* draw, ImVec2 c, float s) {
@@ -71,7 +71,7 @@ void drawFile(ImDrawList* draw, ImVec2 c, float s) {
 void drawDrive(ImDrawList* draw, ImVec2 c, float s) {
     auto p = [&](float x, float y) { return ImVec2(c.x + x * s, c.y + y * s); };
     draw->AddRectFilled(p(-14, -7), p(14, 8), IM_COL32(205, 205, 205, 255), 2 * s);
-    draw->AddRect(p(-14, -7), p(14, 8), OUTLINE, 2 * s, 0, 1.2f * s);
+    draw->AddRect(p(-14, -7), p(14, 8), OUTLINE, 2 * s, 1.2f * s);
     draw->AddLine(p(-14, 3), p(14, 3), OUTLINE, 1.0f * s);
     draw->AddRectFilled(p(-11, 4), p(-6, 7), IM_COL32(60, 180, 75, 255));
 }
