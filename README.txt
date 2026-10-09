@@ -11,6 +11,7 @@ Entry point
 
 Built with
   C++17, GLFW 3.5.1, OpenGL, Dear ImGui 1.92.9b.
+  stb_image (third_party/) loads the wallpaper from assets/.
   CMake clones GLFW and Dear ImGui with git on the first build, so that build
   needs internet and git, and takes a minute longer.
 

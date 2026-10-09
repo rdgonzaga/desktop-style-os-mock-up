@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <filesystem>
 
 #include <GLFW/glfw3.h>
 
@@ -6,7 +7,30 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-int main() {
+#include "Config.h"
+#include "shell/Desktop.h"
+
+namespace {
+
+void loadFont() {
+    ImGuiIO& io = ImGui::GetIO();
+    const char* segoe = "C:/Windows/Fonts/segoeui.ttf";
+    if (std::filesystem::exists(segoe)) {
+        io.Fonts->AddFontFromFileTTF(segoe, 17.0f);
+    } else {
+        ImFontConfig font;
+        font.SizePixels = 17.0f;
+        io.Fonts->AddFontDefaultVector(&font);
+    }
+}
+
+}
+
+int main(int, char** argv) {
+    // run from the exe's own folder so assets/ is found however the app was launched
+    std::error_code ignored;
+    std::filesystem::current_path(std::filesystem::absolute(argv[0]).parent_path(), ignored);
+
     if (!glfwInit()) {
         std::fprintf(stderr, "failed to start GLFW\n");
         return 1;
@@ -14,7 +38,8 @@ int main() {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "CSOPESY Desktop OS Emulator", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(config.windowWidth, config.windowHeight,
+                                          "CSOPESY Desktop OS Emulator", nullptr, nullptr);
     if (!window) {
         std::fprintf(stderr, "failed to create the window\n");
         glfwTerminate();
@@ -27,16 +52,25 @@ int main() {
     ImGui::CreateContext();
     ImGui::GetIO().IniFilename = nullptr;  // every boot starts with a fresh window layout
     ImGui::StyleColorsDark();
+    loadFont();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    desktop::init();
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+            ImGui_ImplGlfw_Sleep(10);  // nothing to draw while minimized
+            continue;
+        }
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // layers are drawn here, back to front
+        // layers are drawn back to front
+        desktop::draw();
 
         ImGui::Render();
         int width = 0;
@@ -49,6 +83,7 @@ int main() {
         glfwSwapBuffers(window);
     }
 
+    desktop::shutdown();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
