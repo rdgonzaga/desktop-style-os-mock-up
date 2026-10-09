@@ -15,7 +15,7 @@ namespace {
 
 std::vector<App> table = {
     {"Terminal", Icon::Terminal, ImVec2(640, 400), terminal::draw},
-    {"File Explorer", Icon::Folder, ImVec2(720, 460), explorer::draw},
+    {"File Explorer", Icon::Folder, ImVec2(820, 480), explorer::draw},
     {"Task Manager", Icon::TaskManager, ImVec2(780, 500), taskmanager::draw, ImGuiWindowFlags_MenuBar},
 };
 
