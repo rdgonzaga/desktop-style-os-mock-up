@@ -1,5 +1,7 @@
 #include "core/Theme.h"
 
+#include <filesystem>
+
 namespace theme {
 
 namespace {
@@ -9,6 +11,18 @@ ImVec4 rgb(int r, int g, int b, float a = 1.0f) {
 }
 
 const ImVec4 TITLE_TEXT = rgb(255, 255, 255);
+
+ImFont* monoFont = nullptr;
+
+ImFont* addFont(const char* path, float size) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (std::filesystem::exists(path)) {
+        return io.Fonts->AddFontFromFileTTF(path, size);
+    }
+    ImFontConfig font;
+    font.SizePixels = size;
+    return io.Fonts->AddFontDefaultVector(&font);
+}
 
 }
 
@@ -44,6 +58,15 @@ void apply() {
     colors[ImGuiCol_HeaderHovered] = rgb(213, 226, 247);
     colors[ImGuiCol_HeaderActive] = rgb(170, 195, 235);
     colors[ImGuiCol_ModalWindowDimBg] = rgb(0, 0, 0, 0.35f);
+}
+
+void loadFonts() {
+    addFont("C:/Windows/Fonts/segoeui.ttf", 17.0f);
+    monoFont = addFont("C:/Windows/Fonts/consola.ttf", 17.0f);
+}
+
+ImFont* mono() {
+    return monoFont;
 }
 
 bool beginWindow(const char* title, bool* open, ImGuiWindowFlags flags) {

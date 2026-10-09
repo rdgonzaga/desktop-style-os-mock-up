@@ -14,22 +14,6 @@
 #include "shell/Desktop.h"
 #include "shell/Taskbar.h"
 
-namespace {
-
-void loadFont() {
-    ImGuiIO& io = ImGui::GetIO();
-    const char* segoe = "C:/Windows/Fonts/segoeui.ttf";
-    if (std::filesystem::exists(segoe)) {
-        io.Fonts->AddFontFromFileTTF(segoe, 17.0f);
-    } else {
-        ImFontConfig font;
-        font.SizePixels = 17.0f;
-        io.Fonts->AddFontDefaultVector(&font);
-    }
-}
-
-}
-
 int main(int, char** argv) {
     // so assets/ is found no matter where the exe is started from
     std::error_code ignored;
@@ -58,7 +42,7 @@ int main(int, char** argv) {
     ImGui::CreateContext();
     ImGui::GetIO().IniFilename = nullptr;
     theme::apply();
-    loadFont();
+    theme::loadFonts();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
