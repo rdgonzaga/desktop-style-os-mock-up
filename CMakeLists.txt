@@ -41,7 +41,9 @@ add_executable(CsopesyOS
     src/main.cpp
     src/core/Clock.cpp
     src/core/Texture.cpp
-    src/shell/Desktop.cpp)
+    src/core/Theme.cpp
+    src/shell/Desktop.cpp
+    src/shell/Taskbar.cpp)
 target_include_directories(CsopesyOS PRIVATE src)
 target_include_directories(CsopesyOS SYSTEM PRIVATE third_party)
 target_link_libraries(CsopesyOS PRIVATE imgui)

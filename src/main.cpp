@@ -8,7 +8,10 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Config.h"
+#include "core/Power.h"
+#include "core/Theme.h"
 #include "shell/Desktop.h"
+#include "shell/Taskbar.h"
 
 namespace {
 
@@ -47,18 +50,20 @@ int main(int, char** argv) {
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+    // the X button and Alt+F4 do nothing; the spec wants PWR to be the only way out
+    glfwSetWindowCloseCallback(window, [](GLFWwindow* w) { glfwSetWindowShouldClose(w, GLFW_FALSE); });
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::GetIO().IniFilename = nullptr;  // every boot starts with a fresh window layout
-    ImGui::StyleColorsDark();
+    theme::apply();
     loadFont();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
     desktop::init();
 
-    while (!glfwWindowShouldClose(window)) {
+    while (power::on) {
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
             ImGui_ImplGlfw_Sleep(10);  // nothing to draw while minimized
@@ -71,6 +76,7 @@ int main(int, char** argv) {
 
         // layers are drawn back to front
         desktop::draw();
+        taskbar::draw();
 
         ImGui::Render();
         int width = 0;
