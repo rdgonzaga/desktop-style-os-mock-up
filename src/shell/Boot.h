@@ -3,5 +3,6 @@
 namespace boot {
 
 void draw();
+void drawShutdown();
 
 }

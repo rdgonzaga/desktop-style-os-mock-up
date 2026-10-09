@@ -226,7 +226,7 @@ void shutdownDialog() {
     ImGui::Text("Are you sure you want to shut down %s?", config.osName.c_str());
     ImGui::Spacing();
     if (ImGui::Button("Turn Off", ImVec2(110, 0))) {
-        power::state = power::State::Off;
+        power::state = power::State::ShuttingDown;
     }
     ImGui::SameLine();
     if (ImGui::Button("Cancel", ImVec2(110, 0)) || ImGui::IsKeyPressed(ImGuiKey_Escape)) {

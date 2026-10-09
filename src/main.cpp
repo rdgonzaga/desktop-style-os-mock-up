@@ -72,6 +72,8 @@ int main(int, char** argv) {
 
         if (power::state == power::State::Booting) {
             boot::draw();
+        } else if (power::state == power::State::ShuttingDown) {
+            boot::drawShutdown();
         } else {
             // back to front
             desktop::draw();

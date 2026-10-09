@@ -2,7 +2,7 @@
 
 namespace power {
 
-enum class State { Booting, Running, Off };
+enum class State { Booting, Running, ShuttingDown, Off };
 
 inline State state = State::Booting;
 

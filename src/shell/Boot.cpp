@@ -4,9 +4,11 @@
 #include <cmath>
 #include <cstdio>
 #include <iterator>
+#include <string>
 
 #include "imgui.h"
 
+#include "Config.h"
 #include "core/Power.h"
 #include "core/Theme.h"
 
@@ -52,6 +54,7 @@ const float MEMORY_SECONDS = 1.5f;
 const int MEMORY_KB = 64000;
 const float BIOS_HOLD_SECONDS = 1.2f;
 const float SPLASH_SECONDS = 3.5f;
+const float SHUTDOWN_SECONDS = 2.5f;
 const float BIOS_TEXT = 20.0f;
 
 const ImU32 BLACK = IM_COL32(0, 0, 0, 255);
@@ -62,6 +65,7 @@ const ImU32 BLUE = IM_COL32(40, 110, 230, 255);
 
 Stage stage = Stage::Bios;
 double stageStart = -1.0;
+double shutdownStart = -1.0;
 
 float biosSeconds() {
     return std::size(BIOS_HEADER) * LINE_SECONDS + MEMORY_SECONDS + std::size(BIOS_DRIVES) * DRIVE_SECONDS +
@@ -187,6 +191,43 @@ void draw() {
     float duration = stage == Stage::Bios ? biosSeconds() : SPLASH_SECONDS;
     if (elapsed >= duration || skipPressed()) {
         nextStage();
+    }
+}
+
+void drawShutdown() {
+    double now = ImGui::GetTime();
+    if (shutdownStart < 0) {
+        shutdownStart = now;
+    }
+    float elapsed = static_cast<float>(now - shutdownStart);
+    ImVec2 screen = ImGui::GetIO().DisplaySize;
+    ImDrawList* draw = ImGui::GetBackgroundDrawList();
+
+    float band = screen.y * 0.14f;
+    ImU32 light = IM_COL32(90, 126, 220, 255);
+    ImU32 dark = IM_COL32(0, 48, 156, 255);
+    draw->AddRectFilledMultiColor(ImVec2(0, 0), screen, light, light, dark, dark);
+    draw->AddRectFilled(ImVec2(0, 0), ImVec2(screen.x, band), dark);
+    draw->AddRectFilled(ImVec2(0, screen.y - band), screen, dark);
+    draw->AddLine(ImVec2(0, band), ImVec2(screen.x, band), IM_COL32(150, 180, 240, 255), 2.0f);
+    draw->AddLine(ImVec2(0, screen.y - band), ImVec2(screen.x, screen.y - band), IM_COL32(230, 140, 50, 255), 2.0f);
+
+    ImFont* font = ImGui::GetFont();
+    const char* name = config.osName.c_str();
+    ImVec2 nameSize = font->CalcTextSizeA(44.0f, FLT_MAX, 0, name);
+    ImVec2 namePos((screen.x - nameSize.x) / 2, screen.y / 2 - nameSize.y);
+    draw->AddText(font, 44.0f, namePos, WHITE, name);
+
+    int dots = static_cast<int>(elapsed / 0.4f) % 4;
+    const char* message = elapsed < SHUTDOWN_SECONDS / 2 ? "Saving your settings" : "Shutting down";
+    char status[48];
+    std::snprintf(status, sizeof(status), "%s%.*s", message, dots, "...");
+    std::string full = std::string(message) + "...";
+    ImVec2 statusSize = font->CalcTextSizeA(22.0f, FLT_MAX, 0, full.c_str());
+    draw->AddText(font, 22.0f, ImVec2((screen.x - statusSize.x) / 2, screen.y / 2 + 16), WHITE, status);
+
+    if (elapsed >= SHUTDOWN_SECONDS) {
+        power::state = power::State::Off;
     }
 }
 
