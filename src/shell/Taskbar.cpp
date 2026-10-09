@@ -164,8 +164,11 @@ bool menuRow(const char* label, Icon icon) {
 }
 
 void startMenu() {
-    ImVec2 screen = ImGui::GetIO().DisplaySize;
-    ImGui::SetNextWindowPos(ImVec2(0, screen.y - HEIGHT), ImGuiCond_Always, ImVec2(0, 1));
+    if (config.taskbarTop) {
+        ImGui::SetNextWindowPos(ImVec2(0, HEIGHT));
+    } else {
+        ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - HEIGHT), ImGuiCond_Always, ImVec2(0, 1));
+    }
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 6.0f);
@@ -234,10 +237,19 @@ void shutdownDialog() {
 
 }
 
+ImVec2 workMin() {
+    return ImVec2(0, config.taskbarTop ? HEIGHT : 0);
+}
+
+ImVec2 workMax() {
+    ImVec2 screen = ImGui::GetIO().DisplaySize;
+    return ImVec2(screen.x, config.taskbarTop ? screen.y : screen.y - HEIGHT);
+}
+
 void draw() {
     ImVec2 screen = ImGui::GetIO().DisplaySize;
-    ImVec2 barMin(0, screen.y - HEIGHT);
-    ImVec2 barMax(screen.x, screen.y);
+    ImVec2 barMin(0, config.taskbarTop ? 0 : screen.y - HEIGHT);
+    ImVec2 barMax(screen.x, barMin.y + HEIGHT);
 
     ImGui::SetNextWindowPos(barMin);
     ImGui::SetNextWindowSize(barMax - barMin);
@@ -251,7 +263,8 @@ void draw() {
 
     ImDrawList* draw = ImGui::GetWindowDrawList();
     draw->AddRectFilledMultiColor(barMin, barMax, BAR_TOP, BAR_TOP, BAR_BOTTOM, BAR_BOTTOM);
-    draw->AddLine(barMin, ImVec2(barMax.x, barMin.y), BAR_HIGHLIGHT, 2.0f);
+    float edge = config.taskbarTop ? barMax.y - 1 : barMin.y;
+    draw->AddLine(ImVec2(0, edge), ImVec2(barMax.x, edge), BAR_HIGHLIGHT, 2.0f);
 
     startButton(barMin, ImGui::IsPopupOpen(START_MENU));
 

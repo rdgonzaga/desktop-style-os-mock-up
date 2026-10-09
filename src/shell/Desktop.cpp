@@ -7,6 +7,7 @@
 #include "Config.h"
 #include "core/Clock.h"
 #include "core/Texture.h"
+#include "shell/Taskbar.h"
 
 namespace desktop {
 
@@ -65,10 +66,11 @@ void draw() {
     }
 
     drawWallpaper(draw, screen);
-    drawBadge(draw, ImVec2(MARGIN, MARGIN), config.osName);
+    float top = taskbar::workMin().y + MARGIN;
+    drawBadge(draw, ImVec2(MARGIN, top), config.osName);
 
     std::string clock = sysclock::dateTime();
-    drawBadge(draw, ImVec2(screen.x - badgeSize(clock).x - MARGIN, MARGIN), clock);
+    drawBadge(draw, ImVec2(screen.x - badgeSize(clock).x - MARGIN, top), clock);
 }
 
 void shutdown() {

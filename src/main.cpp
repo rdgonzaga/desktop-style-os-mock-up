@@ -15,9 +15,10 @@
 #include "shell/Taskbar.h"
 
 int main(int, char** argv) {
-    // so assets/ is found no matter where the exe is started from
+    // so assets/ and config.txt are found no matter where the exe is started from
     std::error_code ignored;
     std::filesystem::current_path(std::filesystem::absolute(argv[0]).parent_path(), ignored);
+    loadConfig("config.txt");
 
     if (!glfwInit()) {
         std::fprintf(stderr, "failed to start GLFW\n");
@@ -26,8 +27,16 @@ int main(int, char** argv) {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    GLFWwindow* window = glfwCreateWindow(config.windowWidth, config.windowHeight,
-                                          "CSOPESY Desktop OS Emulator", nullptr, nullptr);
+    GLFWmonitor* monitor = nullptr;
+    int windowWidth = config.windowWidth;
+    int windowHeight = config.windowHeight;
+    if (config.fullscreen) {
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        windowWidth = mode->width;
+        windowHeight = mode->height;
+    }
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "CSOPESY Desktop OS Emulator", monitor, nullptr);
     if (!window) {
         std::fprintf(stderr, "failed to create the window\n");
         glfwTerminate();

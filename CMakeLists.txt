@@ -37,6 +37,7 @@ target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
 add_executable(CsopesyOS
     src/main.cpp
+    src/Config.cpp
     src/apps/FileExplorer.cpp
     src/apps/TaskManager.cpp
     src/apps/Terminal.cpp
@@ -51,9 +52,10 @@ target_include_directories(CsopesyOS PRIVATE src)
 target_include_directories(CsopesyOS SYSTEM PRIVATE third_party)
 target_link_libraries(CsopesyOS PRIVATE imgui)
 
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:CsopesyOS>/assets)
-add_dependencies(CsopesyOS copy_assets)
+add_custom_target(copy_runtime_files
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:CsopesyOS>/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/config.txt $<TARGET_FILE_DIR:CsopesyOS>)
+add_dependencies(CsopesyOS copy_runtime_files)
 
 if(MSVC)
     target_compile_options(CsopesyOS PRIVATE /W4 /utf-8)

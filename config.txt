@@ -1,0 +1,24 @@
+# CSOPESY OS runtime parameters.
+# Edit this file, save it, then press Run again. Nothing gets recompiled.
+# Format is key = value. Lines that start with # are ignored.
+
+# window size in pixels, or fullscreen on the main monitor (true/false)
+window_width = 1280
+window_height = 720
+fullscreen = false
+
+# shown on the desktop, the terminal and the shutdown screens
+os_name = CSOPESY OS v1.0
+
+# image next to the exe (jpg/png). A missing image falls back to a gradient
+wallpaper = assets/wallpaper.jpg
+
+# top or bottom
+taskbar_position = bottom
+
+# true/false
+clock_24h = false
+clock_seconds = true
+
+# BIOS and splash screens before the desktop (true/false)
+boot_screens = true

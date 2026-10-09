@@ -38,11 +38,11 @@ std::string simplified(const std::string& name) {
     return out;
 }
 
-void clampToWorkArea(ImVec2 workMax) {
+void clampToWorkArea(ImVec2 workMin, ImVec2 workMax) {
     ImVec2 pos = ImGui::GetWindowPos();
     ImVec2 size = ImGui::GetWindowSize();
-    ImVec2 clamped(std::max(0.0f, std::min(pos.x, workMax.x - size.x)),
-                   std::max(0.0f, std::min(pos.y, workMax.y - size.y)));
+    ImVec2 clamped(std::max(workMin.x, std::min(pos.x, workMax.x - size.x)),
+                   std::max(workMin.y, std::min(pos.y, workMax.y - size.y)));
     if (clamped.x != pos.x || clamped.y != pos.y) {
         ImGui::SetWindowPos(clamped);
     }
@@ -98,8 +98,8 @@ void toggle(App& app) {
 }
 
 void drawWindows() {
-    ImVec2 screen = ImGui::GetIO().DisplaySize;
-    ImVec2 workMax(screen.x, screen.y - taskbar::HEIGHT);
+    ImVec2 workMin = taskbar::workMin();
+    ImVec2 workMax = taskbar::workMax();
 
     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
         active = nullptr;
@@ -107,7 +107,7 @@ void drawWindows() {
 
     float cascade = 0.0f;
     for (App& app : table) {
-        ImVec2 firstPos(80.0f + cascade, 70.0f + cascade);
+        ImVec2 firstPos(80.0f + cascade, workMin.y + 70.0f + cascade);
         cascade += 40.0f;
         if (!app.open || app.minimized) {
             continue;
@@ -115,14 +115,14 @@ void drawWindows() {
 
         ImGui::SetNextWindowPos(firstPos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(app.defaultSize, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSizeConstraints(ImVec2(360, 220), workMax);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(360, 220), workMax - workMin);
         if (app.focusRequested) {
             ImGui::SetNextWindowFocus();
             app.focusRequested = false;
         }
 
         if (theme::beginWindow(app.name, &app.open, ImGuiWindowFlags_NoCollapse | app.windowFlags)) {
-            clampToWorkArea(workMax);
+            clampToWorkArea(workMin, workMax);
             if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
                 active = &app;
             }
