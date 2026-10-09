@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "imgui.h"
@@ -11,6 +12,7 @@ struct App {
     Icon icon;
     ImVec2 defaultSize;
     void (*drawContent)();
+    ImGuiWindowFlags windowFlags = 0;
 
     bool open = false;
     bool minimized = false;
@@ -20,9 +22,11 @@ struct App {
 namespace apps {
 
 std::vector<App>& all();
+App* find(const std::string& name);
 bool isActive(const App& app);
 
 void open(App& app);
+void close(App& app);
 void toggle(App& app);
 
 void drawWindows();

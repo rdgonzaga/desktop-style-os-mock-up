@@ -33,6 +33,13 @@ void drawTaskManager(ImDrawList* draw, ImVec2 c, float s) {
     draw->AddPolyline(graph, 6, GREEN, 0, 1.5f * s);
 }
 
+void drawWindow(ImDrawList* draw, ImVec2 c, float s) {
+    auto p = [&](float x, float y) { return ImVec2(c.x + x * s, c.y + y * s); };
+    draw->AddRectFilled(p(-13, -11), p(13, 11), IM_COL32(255, 255, 255, 255), 2 * s);
+    draw->AddRectFilled(p(-13, -11), p(13, -5), IM_COL32(0, 84, 227, 255), 2 * s, ImDrawFlags_RoundCornersTop);
+    draw->AddRect(p(-13, -11), p(13, 11), IM_COL32(0, 60, 116, 255), 2 * s, 0, 1.2f * s);
+}
+
 }
 
 void drawIcon(ImDrawList* draw, Icon icon, ImVec2 center, float size) {
@@ -46,6 +53,9 @@ void drawIcon(ImDrawList* draw, Icon icon, ImVec2 center, float size) {
         break;
     case Icon::TaskManager:
         drawTaskManager(draw, center, scale);
+        break;
+    case Icon::Window:
+        drawWindow(draw, center, scale);
         break;
     }
 }

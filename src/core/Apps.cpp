@@ -1,6 +1,7 @@
 #include "core/Apps.h"
 
 #include <algorithm>
+#include <cctype>
 
 #include "apps/FileExplorer.h"
 #include "apps/TaskManager.h"
@@ -15,7 +16,7 @@ namespace {
 std::vector<App> table = {
     {"Terminal", Icon::Terminal, ImVec2(640, 400), terminal::draw},
     {"File Explorer", Icon::Folder, ImVec2(720, 460), explorer::draw},
-    {"Task Manager", Icon::TaskManager, ImVec2(700, 480), taskmanager::draw},
+    {"Task Manager", Icon::TaskManager, ImVec2(780, 500), taskmanager::draw, ImGuiWindowFlags_MenuBar},
 };
 
 const App* active = nullptr;
@@ -25,6 +26,16 @@ void minimize(App& app) {
     if (active == &app) {
         active = nullptr;
     }
+}
+
+std::string simplified(const std::string& name) {
+    std::string out;
+    for (char c : name) {
+        if (c != ' ') {
+            out += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+    }
+    return out;
 }
 
 void clampToWorkArea(ImVec2 workMax) {
@@ -43,6 +54,24 @@ std::vector<App>& all() {
     return table;
 }
 
+App* find(const std::string& name) {
+    std::string wanted = simplified(name);
+    if (wanted.empty()) {
+        return nullptr;
+    }
+    for (App& app : table) {
+        if (simplified(app.name) == wanted) {
+            return &app;
+        }
+    }
+    for (App& app : table) {
+        if (simplified(app.name).find(wanted) != std::string::npos) {
+            return &app;
+        }
+    }
+    return nullptr;
+}
+
 bool isActive(const App& app) {
     return active == &app;
 }
@@ -51,6 +80,13 @@ void open(App& app) {
     app.open = true;
     app.minimized = false;
     app.focusRequested = true;
+}
+
+void close(App& app) {
+    app.open = false;
+    if (active == &app) {
+        active = nullptr;
+    }
 }
 
 void toggle(App& app) {
@@ -85,7 +121,7 @@ void drawWindows() {
             app.focusRequested = false;
         }
 
-        if (theme::beginWindow(app.name, &app.open, ImGuiWindowFlags_NoCollapse)) {
+        if (theme::beginWindow(app.name, &app.open, ImGuiWindowFlags_NoCollapse | app.windowFlags)) {
             clampToWorkArea(workMax);
             if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
                 active = &app;
