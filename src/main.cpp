@@ -26,8 +26,17 @@ int main(int, char** argv) {
         return 1;
     }
 
+#if defined(__APPLE__)
+    const char* glsl_version = "#version 150";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#else
+    const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
     GLFWmonitor* monitor = nullptr;
     int windowWidth = config.windowWidth;
     int windowHeight = config.windowHeight;
@@ -54,7 +63,7 @@ int main(int, char** argv) {
     theme::apply();
     theme::loadFonts();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
+    ImGui_ImplOpenGL3_Init(glsl_version);
 
     desktop::init();
     power::state = config.bootScreens ? power::State::Booting : power::State::Running;
