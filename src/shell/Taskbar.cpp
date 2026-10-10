@@ -39,7 +39,7 @@ const ImVec2 TASK_SIZE(46.0f, 34.0f);
 const ImVec2 ICON_SIZE(30.0f, 30.0f);
 const ImVec2 PWR_SIZE(74.0f, 28.0f);
 const float TRAY_PADDING = 8.0f;
-const float MENU_WIDTH = 300.0f;
+const float MENU_WIDTH = 340.0f;
 const float MENU_ROW = 42.0f;
 const float PI = 3.14159265f;
 
@@ -197,8 +197,10 @@ void startMenu() {
         ImVec2 footer = ImGui::GetCursorScreenPos();
         draw->AddRectFilled(footer, footer + ImVec2(MENU_WIDTH, 44), MENU_FOOTER, 6.0f, ImDrawFlags_RoundCornersBottom);
 
-        ImVec2 turnOff = footer + ImVec2(MENU_WIDTH - 176, 7);
-        ImVec2 turnOffSize(168, 30);
+        ImVec2 labelSize = ImGui::CalcTextSize("Turn Off Computer");
+        float turnOffWidth = 36.0f + labelSize.x + 14.0f;
+        ImVec2 turnOff = footer + ImVec2(MENU_WIDTH - turnOffWidth - 10, 7);
+        ImVec2 turnOffSize(turnOffWidth, 30);
         ImGui::SetCursorScreenPos(turnOff);
         if (ImGui::InvisibleButton("##turnoff", turnOffSize)) {
             shutdownRequested = true;
