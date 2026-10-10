@@ -13,6 +13,7 @@
 #include "core/Apps.h"
 #include "core/Clock.h"
 #include "core/Theme.h"
+#include "shell/Taskbar.h"
 
 namespace terminal {
 
@@ -118,6 +119,34 @@ void cmdOpen(const std::string& args) {
     print("Opening " + std::string(app->name) + "...");
 }
 
+void cmdPing(const std::string& args) {
+    if (!taskbar::isWifiEnabled()) {
+        print("Ping request could not find host. Error: Network is unreachable (Wi-Fi is turned off).");
+        return;
+    }
+    std::string target = args.empty() ? "8.8.8.8" : args;
+    print("Pinging " + target + " with 32 bytes of data:");
+    print("Reply from " + target + ": bytes=32 time=14ms TTL=117");
+    print("Reply from " + target + ": bytes=32 time=12ms TTL=117");
+    print("Reply from " + target + ": bytes=32 time=15ms TTL=117");
+    print("Ping statistics for " + target + ": Packets: Sent = 3, Received = 3, Lost = 0 (0% loss)");
+}
+
+void cmdIpconfig(const std::string&) {
+    print("CSOPESY IP Configuration:");
+    print("");
+    print("Wireless LAN adapter Wi-Fi:");
+    if (!taskbar::isWifiEnabled()) {
+        print("   Media State . . . . . . . . . . . : Media disconnected");
+        print("   Connection-specific DNS Suffix  . : ");
+    } else {
+        print("   Connection-specific DNS Suffix  . : localdomain");
+        print("   IPv4 Address. . . . . . . . . . . : 192.168.1.105");
+        print("   Subnet Mask . . . . . . . . . . . : 255.255.255.0");
+        print("   Default Gateway . . . . . . . . . : 192.168.1.1");
+    }
+}
+
 void cmdExit(const std::string&) {
     if (App* self = apps::find("Terminal")) {
         apps::close(*self);
@@ -127,15 +156,17 @@ void cmdExit(const std::string&) {
 
 const std::vector<Command>& commands() {
     static const std::vector<Command> table = {
-        {"help",   "help",       "lists the commands",                    cmdHelp},
-        {"clear",  "clear",      "clears the screen",                     cmdClear},
-        {"echo",   "echo <text>", "prints the text back",                 cmdEcho},
-        {"date",   "date",       "shows the current date and time",       cmdDate},
-        {"ver",    "ver",        "shows the os version",                  cmdVer},
-        {"whoami", "whoami",     "shows the current user",                cmdWhoami},
-        {"ps",     "ps",         "lists the running processes",           cmdPs},
-        {"open",   "open <app>", "opens an app, e.g. open task manager",  cmdOpen},
-        {"exit",   "exit",       "closes the terminal",                   cmdExit},
+        {"help",     "help",        "lists the commands",                    cmdHelp},
+        {"clear",    "clear",       "clears the screen",                     cmdClear},
+        {"echo",     "echo <text>", "prints the text back",                 cmdEcho},
+        {"date",     "date",        "shows the current date and time",       cmdDate},
+        {"ver",      "ver",         "shows the os version",                  cmdVer},
+        {"whoami",   "whoami",      "shows the current user",                cmdWhoami},
+        {"ps",       "ps",          "lists the running processes",           cmdPs},
+        {"open",     "open <app>",  "opens an app, e.g. open task manager",  cmdOpen},
+        {"ping",     "ping <host>", "tests network connectivity",            cmdPing},
+        {"ipconfig", "ipconfig",    "displays network IP configuration",     cmdIpconfig},
+        {"exit",     "exit",        "closes the terminal",                   cmdExit},
     };
     return table;
 }

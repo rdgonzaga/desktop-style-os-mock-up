@@ -10,5 +10,11 @@ ImVec2 workMin();
 ImVec2 workMax();
 
 void draw();
+void drawOverlays();
+
+bool isWifiEnabled();
+int getVolume();
+int getBrightness();
+bool isNightLight();
 
 }

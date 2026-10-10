@@ -27,42 +27,96 @@ ImFont* addFont(const char* path, float size) {
 }
 
 void apply() {
-    ImGui::StyleColorsLight();
+    ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 8.0f;
-    style.FrameRounding = 3.0f;
-    style.GrabRounding = 3.0f;
-    style.TabRounding = 3.0f;
-    style.ScrollbarRounding = 6.0f;
+    style.WindowRounding = 10.0f;
+    style.ChildRounding = 8.0f;
+    style.FrameRounding = 6.0f;
+    style.PopupRounding = 10.0f;
+    style.ScrollbarRounding = 8.0f;
+    style.GrabRounding = 6.0f;
+    style.TabRounding = 6.0f;
     style.WindowBorderSize = 1.0f;
-    style.FrameBorderSize = 1.0f;
-    style.WindowPadding = ImVec2(10.0f, 10.0f);
-    style.FramePadding = ImVec2(8.0f, 4.0f);
-    style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+    style.FrameBorderSize = 0.0f;
+    style.PopupBorderSize = 1.0f;
+    style.WindowPadding = ImVec2(12.0f, 12.0f);
+    style.FramePadding = ImVec2(10.0f, 6.0f);
+    style.ItemSpacing = ImVec2(8.0f, 6.0f);
+    style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
+    style.ScrollbarSize = 12.0f;
+    style.GrabMinSize = 12.0f;
+    style.WindowTitleAlign = ImVec2(0.02f, 0.5f);
 
     ImVec4* colors = style.Colors;
-    colors[ImGuiCol_Text] = rgb(0, 0, 0);
-    colors[ImGuiCol_WindowBg] = rgb(236, 233, 216);
-    colors[ImGuiCol_PopupBg] = rgb(255, 255, 255);
-    colors[ImGuiCol_Border] = rgb(0, 60, 116, 0.6f);
-    colors[ImGuiCol_TitleBg] = rgb(122, 150, 223);
-    colors[ImGuiCol_TitleBgActive] = rgb(0, 84, 227);
-    colors[ImGuiCol_TitleBgCollapsed] = rgb(122, 150, 223);
-    colors[ImGuiCol_FrameBg] = rgb(255, 255, 255);
-    colors[ImGuiCol_FrameBgHovered] = rgb(255, 255, 255);
-    colors[ImGuiCol_FrameBgActive] = rgb(255, 255, 255);
-    colors[ImGuiCol_Button] = rgb(245, 244, 239);
-    colors[ImGuiCol_ButtonHovered] = rgb(253, 236, 194);
-    colors[ImGuiCol_ButtonActive] = rgb(226, 223, 205);
-    colors[ImGuiCol_Header] = rgb(193, 210, 238);
-    colors[ImGuiCol_HeaderHovered] = rgb(213, 226, 247);
-    colors[ImGuiCol_HeaderActive] = rgb(170, 195, 235);
-    colors[ImGuiCol_ModalWindowDimBg] = rgb(0, 0, 0, 0.35f);
+    colors[ImGuiCol_Text] = rgb(240, 240, 240);
+    colors[ImGuiCol_TextDisabled] = rgb(140, 140, 140);
+    colors[ImGuiCol_WindowBg] = rgb(32, 32, 32, 0.98f);
+    colors[ImGuiCol_ChildBg] = rgb(26, 26, 26, 0.70f);
+    colors[ImGuiCol_PopupBg] = rgb(36, 36, 36, 0.98f);
+    colors[ImGuiCol_Border] = rgb(62, 62, 62, 0.85f);
+    colors[ImGuiCol_BorderShadow] = rgb(0, 0, 0, 0.0f);
+    colors[ImGuiCol_FrameBg] = rgb(44, 44, 44);
+    colors[ImGuiCol_FrameBgHovered] = rgb(56, 56, 56);
+    colors[ImGuiCol_FrameBgActive] = rgb(64, 64, 64);
+    colors[ImGuiCol_TitleBg] = rgb(26, 26, 26);
+    colors[ImGuiCol_TitleBgActive] = rgb(34, 34, 34);
+    colors[ImGuiCol_TitleBgCollapsed] = rgb(24, 24, 24);
+    colors[ImGuiCol_MenuBarBg] = rgb(32, 32, 32);
+    colors[ImGuiCol_ScrollbarBg] = rgb(28, 28, 28, 0.50f);
+    colors[ImGuiCol_ScrollbarGrab] = rgb(80, 80, 80);
+    colors[ImGuiCol_ScrollbarGrabHovered] = rgb(110, 110, 110);
+    colors[ImGuiCol_ScrollbarGrabActive] = rgb(140, 140, 140);
+    colors[ImGuiCol_CheckMark] = rgb(0, 120, 215);
+    colors[ImGuiCol_SliderGrab] = rgb(0, 120, 215);
+    colors[ImGuiCol_SliderGrabActive] = rgb(0, 103, 192);
+    colors[ImGuiCol_Button] = rgb(45, 45, 45);
+    colors[ImGuiCol_ButtonHovered] = rgb(58, 58, 58);
+    colors[ImGuiCol_ButtonActive] = rgb(38, 38, 38);
+    colors[ImGuiCol_Header] = rgb(0, 120, 215, 0.35f);
+    colors[ImGuiCol_HeaderHovered] = rgb(0, 120, 215, 0.55f);
+    colors[ImGuiCol_HeaderActive] = rgb(0, 120, 215, 0.75f);
+    colors[ImGuiCol_Separator] = rgb(55, 55, 55);
+    colors[ImGuiCol_SeparatorHovered] = rgb(0, 120, 215, 0.78f);
+    colors[ImGuiCol_SeparatorActive] = rgb(0, 120, 215);
+    colors[ImGuiCol_ResizeGrip] = rgb(80, 80, 80, 0.25f);
+    colors[ImGuiCol_ResizeGripHovered] = rgb(0, 120, 215, 0.67f);
+    colors[ImGuiCol_ResizeGripActive] = rgb(0, 120, 215);
+    colors[ImGuiCol_Tab] = rgb(36, 36, 36);
+    colors[ImGuiCol_TabHovered] = rgb(50, 50, 50);
+    colors[ImGuiCol_TabActive] = rgb(0, 120, 215, 0.85f);
+    colors[ImGuiCol_TabUnfocused] = rgb(30, 30, 30);
+    colors[ImGuiCol_TabUnfocusedActive] = rgb(42, 42, 42);
+    colors[ImGuiCol_TableHeaderBg] = rgb(40, 40, 40);
+    colors[ImGuiCol_TableBorderStrong] = rgb(55, 55, 55);
+    colors[ImGuiCol_TableBorderLight] = rgb(45, 45, 45);
+    colors[ImGuiCol_TableRowBg] = rgb(0, 0, 0, 0.0f);
+    colors[ImGuiCol_TableRowBgAlt] = rgb(255, 255, 255, 0.03f);
+    colors[ImGuiCol_TextSelectedBg] = rgb(0, 120, 215, 0.45f);
+    colors[ImGuiCol_DragDropTarget] = rgb(0, 120, 215);
+    colors[ImGuiCol_NavHighlight] = rgb(0, 120, 215);
+    colors[ImGuiCol_ModalWindowDimBg] = rgb(0, 0, 0, 0.60f);
 }
 
 void loadFonts() {
-    addFont("C:/Windows/Fonts/segoeui.ttf", 17.0f);
-    monoFont = addFont("C:/Windows/Fonts/consola.ttf", 17.0f);
+    if (std::filesystem::exists("assets/fonts/Inter.ttf")) {
+        addFont("assets/fonts/Inter.ttf", 16.0f);
+    } else {
+#if defined(__APPLE__)
+        addFont("/System/Library/Fonts/SFNS.ttf", 16.0f);
+#else
+        addFont("C:/Windows/Fonts/segoeui.ttf", 16.0f);
+#endif
+    }
+
+    if (std::filesystem::exists("assets/fonts/JetBrainsMono.ttf")) {
+        monoFont = addFont("assets/fonts/JetBrainsMono.ttf", 15.0f);
+    } else {
+#if defined(__APPLE__)
+        monoFont = addFont("/System/Library/Fonts/SFNSMono.ttf", 15.0f);
+#else
+        monoFont = addFont("C:/Windows/Fonts/consola.ttf", 16.0f);
+#endif
+    }
 }
 
 ImFont* mono() {

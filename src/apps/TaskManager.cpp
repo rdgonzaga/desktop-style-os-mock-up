@@ -42,8 +42,8 @@ const char* SPEED_NAMES[] = {"High", "Normal", "Low", "Paused"};
 const float SPEED_SECONDS[] = {0.5f, 1.0f, 4.0f, 0.0f};
 const char* PLACEHOLDER_TABS[] = {"App history", "Startup", "Users", "Details", "Services"};
 
-const ImU32 GROUP_TEXT = IM_COL32(16, 52, 166, 255);
-const ImU32 GRAPH_LINE = IM_COL32(17, 125, 187, 255);
+const ImU32 GROUP_TEXT = IM_COL32(96, 175, 255, 255);
+const ImU32 GRAPH_LINE = IM_COL32(0, 150, 240, 255);
 
 std::mt19937 rng{std::random_device{}()};
 
@@ -206,7 +206,8 @@ std::string header(const char* name, float percent, const char* id) {
 
 ImU32 shade(float load) {
     float t = std::clamp(load, 0.0f, 1.0f);
-    return IM_COL32(255, static_cast<int>(244 - 110 * t), static_cast<int>(196 - 160 * t), 255);
+    if (t <= 0.01f) return IM_COL32(0, 0, 0, 0);
+    return IM_COL32(0, 120, 215, static_cast<int>(35 + 175 * t));
 }
 
 void rightAligned(const char* text) {

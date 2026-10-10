@@ -10,6 +10,7 @@ struct Config {
     std::string osName = "CSOPESY OS v1.0";
     std::string wallpaper = "assets/wallpaper.jpg";
     bool taskbarTop = false;
+    bool taskbarCentered = true;
 
     bool clock24h = false;
     bool clockSeconds = true;

@@ -107,6 +107,8 @@ void loadConfig(const std::string& path) {
             valid = parseText(value, config.wallpaper);
         } else if (key == "taskbar_position") {
             valid = parseTaskbar(value, config.taskbarTop);
+        } else if (key == "taskbar_centered") {
+            valid = parseBool(value, config.taskbarCentered);
         } else if (key == "clock_24h") {
             valid = parseBool(value, config.clock24h);
         } else if (key == "clock_seconds") {

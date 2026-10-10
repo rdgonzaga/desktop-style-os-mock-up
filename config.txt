@@ -15,6 +15,8 @@ wallpaper = assets/wallpaper.jpg
 
 # top or bottom
 taskbar_position = bottom
+# center taskbar icons like Windows 11 / macOS dock (true/false)
+taskbar_centered = true
 
 # true/false
 clock_24h = false

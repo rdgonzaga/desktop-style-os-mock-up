@@ -88,6 +88,7 @@ int main(int, char** argv) {
             desktop::draw();
             apps::drawWindows();
             taskbar::draw();
+            taskbar::drawOverlays();
         }
 
         ImGui::Render();
