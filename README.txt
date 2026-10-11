@@ -51,6 +51,7 @@ Changing parameters without recompiling
   terminal_size                starting window size, e.g. 640x400
   file_explorer_size           same, for File Explorer
   task_manager_size            same, for Task Manager
+  notepad_size, settings_size  same, for Notepad and Settings
   process_file                 Task Manager's background processes, see below
   total_memory_mb              RAM used for Task Manager's memory percentages
   update_speed                 Task Manager refresh: high, normal, low or paused
@@ -69,22 +70,74 @@ Changing parameters without recompiling
   keeps the default.
 
 Using it
-  - Any key or click skips the BIOS and splash screens.
-  - The taskbar buttons (or start) open Terminal, File Explorer and Task Manager.
-    Clicking the button of the app in front minimizes it.
-  - Terminal commands: help, clear, echo, date, ver, whoami, ps, open <app>,
-    ping <host>, ipconfig, exit.
-  - The tray's speaker and Wi-Fi icons open volume and quick settings, and the
-    tray clock opens a calendar.
-  - Task Manager: click a column header to sort, pick a row, then End task.
-  - The window's X button and Alt+F4 do nothing. Shut down with PWR (or
-    start > Turn Off Computer), then Turn Off.
+  Boot
+    BIOS screen, then the CSOPESY splash. Any key or click skips them.
+
+  Desktop
+    Double-click a shortcut on the left to open that app. Click empty space to
+    deselect.
+
+  Taskbar
+    Start menu: lists every app. Type to filter, Enter opens the first match.
+      Turn Off Computer is at the bottom.
+    App buttons: open the app, or bring it to the front. Clicking the app
+      that's already in front minimizes it. The blue line marks open apps.
+    Speaker icon: volume slider and mute.
+    Wi-Fi icon: quick settings. Toggles for Wi-Fi, Bluetooth and Night light,
+      plus volume and brightness sliders. Brightness dims the whole screen and
+      Night light tints it amber.
+    Clock: click it for the date.
+    PWR: asks before shutting down.
+
+  Terminal
+    Up and Down go through the command history.
+    help             lists the commands
+    clear            clears the screen
+    echo <text>      prints the text back
+    date             current date and time
+    ver              the os_name from config.txt
+    whoami           csopesy-pc\<user_name>
+    ps               processes with their CPU and memory, same list as Task Manager
+    open <app>       opens an app, e.g. open task manager
+    ping <host>      fake replies, or an error when Wi-Fi is off
+    ipconfig         fake adapter info, disconnected when Wi-Fi is off
+    kill <name>      ends a process, same as End task. Part of the name works
+                     too (kill zoom) as long as only one process matches
+    shutdown         opens the same dialog as PWR
+    exit             closes the terminal
+
+  File Explorer
+    Placeholder folders and files. Double-click a folder or drive to open it.
+    Back, forward and up work like Windows. Quick access is on the left.
+
+  Task Manager
+    Processes     open apps and background processes with live dummy usage.
+                  Click a header to sort, pick a row, then End task.
+    Performance   CPU and memory graphs, process count and up time.
+    App history   CPU time and network per app since the OS started.
+    Startup       placeholder startup apps.
+    Users         the user_name with the combined usage.
+    Details       every process with a PID, status and user.
+    Services      placeholder Windows services.
+    View > Update speed changes how often the numbers move. Paused freezes them.
+
+  Notepad
+    A plain text box. File > New clears it, Format > Word Wrap toggles
+    wrapping. Nothing is saved to disk.
+
+  Settings
+    Read-only list of every config.txt value the OS started with. Handy for
+    checking that an edit took effect.
+
+  Shutting down
+    The window's X button and Alt+F4 do nothing on purpose. Use PWR, Start >
+    Turn Off Computer, or the shutdown command, then Turn Off.
 
 Source layout
   src/main.cpp   window, frame loop, boot -> desktop -> shutdown states
   src/Config.*   config.txt loader
   src/core/      app table, clock, icons, power state, textures, theme
   src/shell/     boot and shutdown screens, desktop, taskbar
-  src/apps/      Terminal, File Explorer, Task Manager
+  src/apps/      Terminal, File Explorer, Task Manager, Notepad, Settings
   Adding an app means writing its draw function and adding one row to the
   table in src/core/Apps.cpp.
