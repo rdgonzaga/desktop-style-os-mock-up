@@ -142,11 +142,22 @@ void draw() {
     }
 
     drawWallpaper(bgDraw, screen);
-    float top = taskbar::workMin().y + MARGIN;
-    drawBadge(bgDraw, ImVec2(MARGIN, top), config.osName);
-
     ImVec2 workMin = taskbar::workMin();
     ImVec2 workMax = taskbar::workMax();
+    float top = workMin.y + MARGIN;
+
+    bool labelRight = config.clockOnDesktop && config.clockTop && !config.clockRight;
+    float labelX = labelRight ? screen.x - badgeSize(config.osName).x - MARGIN : MARGIN;
+    drawBadge(bgDraw, ImVec2(labelX, top), config.osName);
+
+    if (config.clockOnDesktop) {
+        std::string clock = sysclock::dateTime();
+        ImVec2 clockSize = badgeSize(clock);
+        ImVec2 clockPos(config.clockRight ? screen.x - clockSize.x - MARGIN : MARGIN,
+                        config.clockTop ? top : workMax.y - clockSize.y - MARGIN);
+        drawBadge(bgDraw, clockPos, clock);
+    }
+
     ImGui::SetNextWindowPos(workMin);
     ImGui::SetNextWindowSize(workMax - workMin);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -160,7 +171,9 @@ void draw() {
         selectedShortcut = -1;
     }
 
-    drawShortcuts(workMin, top);
+    if (config.desktopIcons) {
+        drawShortcuts(workMin, top);
+    }
     ImGui::End();
 }
 

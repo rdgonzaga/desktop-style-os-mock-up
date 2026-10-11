@@ -26,7 +26,6 @@ struct Command {
     void (*run)(const std::string& args);
 };
 
-const char* PROMPT = "C:\\Users\\csopesy>";
 const ImU32 SCREEN_BG = IM_COL32(12, 12, 12, 255);
 const ImU32 SCREEN_TEXT = IM_COL32(204, 204, 204, 255);
 
@@ -38,6 +37,10 @@ bool started = false;
 bool scrollToBottom = false;
 
 const std::vector<Command>& commands();
+
+std::string prompt() {
+    return "C:\\Users\\" + config.userName + ">";
+}
 
 void print(const std::string& line) {
     lines.push_back(line);
@@ -92,7 +95,7 @@ void cmdVer(const std::string&) {
 }
 
 void cmdWhoami(const std::string&) {
-    print("csopesy-pc\\csopesy");
+    print("csopesy-pc\\" + config.userName);
 }
 
 void cmdPs(const std::string&) {
@@ -173,7 +176,7 @@ const std::vector<Command>& commands() {
 
 void execute(const std::string& raw) {
     std::string line = trim(raw);
-    print(PROMPT + line);
+    print(prompt() + line);
     if (line.empty()) {
         return;
     }
@@ -249,7 +252,7 @@ void draw() {
     for (const std::string& line : lines) {
         ImGui::TextUnformatted(line.c_str());
     }
-    ImGui::TextUnformatted(PROMPT);
+    ImGui::TextUnformatted(prompt().c_str());
     ImGui::SameLine(0.0f, 0.0f);
     ImGui::SetNextItemWidth(-FLT_MIN);
     if (windowFocused && !ImGui::IsAnyItemActive() && !ImGui::IsMouseDown(ImGuiMouseButton_Left)) {

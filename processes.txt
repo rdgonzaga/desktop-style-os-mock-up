@@ -1,0 +1,17 @@
+# Background processes listed in Task Manager. Edit, save, then press Run again.
+# name, cpu %, memory MB, disk MB/s, network Mbps[, running or suspended]
+# The values drift a little each update. Suspended rows show 0 cpu, disk and network.
+
+Antimalware Service Executable, 0.8, 142.3, 0.1, 0.0
+Client Server Runtime Process, 0.2, 1.1, 0.0, 0.0
+COM Surrogate, 0.1, 2.6, 0.0, 0.0
+Desktop Window Manager, 1.9, 58.4, 0.0, 0.0
+Runtime Broker, 0.1, 4.8, 0.0, 0.0
+Search, 0.0, 38.0, 0.0, 0.0, suspended
+Service Host: Local System, 0.4, 24.7, 0.2, 0.0
+Service Host: Network Service, 0.1, 6.2, 0.0, 0.3
+Spooler SubSystem App, 0.1, 3.1, 0.0, 0.0
+System, 0.6, 0.1, 0.4, 0.1
+System interrupts, 0.3, 0.0, 0.0, 0.0
+Windows Audio Device Graph Isolation, 0.1, 7.5, 0.0, 0.0
+Windows Explorer, 0.5, 46.9, 0.1, 0.0

@@ -56,6 +56,8 @@ int brightnessLevel = 85;
 bool wifiEnabled = true;
 bool bluetoothEnabled = true;
 bool nightLight = false;
+float volumeOsdTimer = 0.0f;
+int lastVolume = 75;
 
 void drawSpeaker(ImDrawList* draw, ImVec2 c) {
     draw->AddRectFilled(c + ImVec2(-8, -3), c + ImVec2(-4, 3), WHITE);
@@ -222,7 +224,7 @@ void startMenu(float startX) {
         draw->AddCircleFilled(avatarCenter, 16.0f, IM_COL32(0, 120, 215, 255));
         draw->AddCircleFilled(avatarCenter - ImVec2(0, 3), 5.5f, WHITE);
         draw->AddRectFilled(avatarCenter + ImVec2(-7, 3), avatarCenter + ImVec2(7, 11), WHITE, 4.0f, ImDrawFlags_RoundCornersTop);
-        draw->AddText(header + ImVec2(58, (56 - ImGui::GetTextLineHeight()) / 2), WHITE, "CSOPESY User");
+        draw->AddText(header + ImVec2(58, (56 - ImGui::GetTextLineHeight()) / 2), WHITE, config.userName.c_str());
 
         // Modern search bar
         ImGui::SetCursorScreenPos(header + ImVec2(10, 62));
@@ -468,6 +470,15 @@ void shutdownDialog() {
 
 }
 
+void init() {
+    volumeLevel = config.volume;
+    brightnessLevel = config.brightness;
+    wifiEnabled = config.wifi;
+    bluetoothEnabled = config.bluetooth;
+    nightLight = config.nightLight;
+    lastVolume = volumeLevel;
+}
+
 ImVec2 workMin() {
     return ImVec2(0, config.taskbarTop ? HEIGHT : 0);
 }
@@ -552,9 +563,6 @@ void draw() {
     shutdownDialog();
     ImGui::End();
 }
-
-static float volumeOsdTimer = 0.0f;
-static int lastVolume = 75;
 
 void drawOverlays() {
     ImDrawList* fg = ImGui::GetForegroundDrawList();

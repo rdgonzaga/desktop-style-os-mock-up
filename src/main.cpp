@@ -8,6 +8,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Config.h"
+#include "apps/TaskManager.h"
 #include "core/Apps.h"
 #include "core/Power.h"
 #include "core/Theme.h"
@@ -66,6 +67,8 @@ int main(int, char** argv) {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     desktop::init();
+    taskbar::init();
+    taskmanager::init();
     power::state = config.bootScreens ? power::State::Booting : power::State::Running;
 
     while (power::state != power::State::Off) {

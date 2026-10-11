@@ -17,6 +17,7 @@ struct Process {
     float network;
 };
 
+void init();
 std::vector<Process> processes();
 void draw();
 

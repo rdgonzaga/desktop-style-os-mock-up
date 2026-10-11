@@ -9,18 +9,49 @@ fullscreen = false
 
 # shown on the desktop, the terminal and the shutdown screens
 os_name = CSOPESY OS v1.0
+# shown in the start menu, the terminal prompt and whoami
+user_name = csopesy
 
 # image next to the exe (jpg/png). A missing image falls back to a gradient
 wallpaper = assets/wallpaper.jpg
+# This PC, File Explorer, Terminal and Task Manager shortcuts (true/false)
+desktop_icons = true
 
 # top or bottom
 taskbar_position = bottom
 # center taskbar icons like Windows 11 / macOS dock (true/false)
 taskbar_centered = true
 
+# taskbar, or a desktop corner: top_left, top_right, bottom_left, bottom_right
+clock_position = taskbar
 # true/false
 clock_24h = false
 clock_seconds = true
+# strftime format, e.g. %A, %B %d, %Y or %m/%d/%Y
+date_format = %A, %B %d, %Y
+
+# starting quick settings: volume 0-100, brightness 10-100, the rest true/false
+volume = 75
+brightness = 85
+wifi = true
+bluetooth = true
+night_light = false
+
+# starting window sizes, as width x height
+terminal_size = 640x400
+file_explorer_size = 820x480
+task_manager_size = 780x500
+
+# Task Manager: background processes file, total RAM, update speed (high, normal, low, paused)
+process_file = processes.txt
+total_memory_mb = 8192
+update_speed = normal
 
 # BIOS and splash screens before the desktop (true/false)
 boot_screens = true
+# also shown in Task Manager's Performance tab
+cpu_name = Intel(R) Pentium(R) III CPU 1000MHz
+bios_memory_kb = 64000
+# leave empty to hide it
+fun_fact = the first computer bug was a real moth, taped into a logbook in 1947.
+splash_seconds = 3.5

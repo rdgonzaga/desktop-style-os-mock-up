@@ -5,12 +5,13 @@
 
 #include "imgui.h"
 
+#include "Config.h"
 #include "core/Icons.h"
 
 struct App {
     const char* name;
     Icon icon;
-    ImVec2 defaultSize;
+    const WindowSize* size;
     void (*drawContent)();
     ImGuiWindowFlags windowFlags = 0;
 

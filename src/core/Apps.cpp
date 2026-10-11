@@ -14,9 +14,9 @@ namespace apps {
 namespace {
 
 std::vector<App> table = {
-    {"Terminal", Icon::Terminal, ImVec2(640, 400), terminal::draw},
-    {"File Explorer", Icon::Folder, ImVec2(820, 480), explorer::draw},
-    {"Task Manager", Icon::TaskManager, ImVec2(780, 500), taskmanager::draw, ImGuiWindowFlags_MenuBar},
+    {"Terminal", Icon::Terminal, &config.terminalSize, terminal::draw},
+    {"File Explorer", Icon::Folder, &config.explorerSize, explorer::draw},
+    {"Task Manager", Icon::TaskManager, &config.taskManagerSize, taskmanager::draw, ImGuiWindowFlags_MenuBar},
 };
 
 const App* active = nullptr;
@@ -114,7 +114,8 @@ void drawWindows() {
         }
 
         ImGui::SetNextWindowPos(firstPos, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(app.defaultSize, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.size->width), static_cast<float>(app.size->height)),
+                                 ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSizeConstraints(ImVec2(360, 220), workMax - workMin);
         if (app.focusRequested) {
             ImGui::SetNextWindowFocus();

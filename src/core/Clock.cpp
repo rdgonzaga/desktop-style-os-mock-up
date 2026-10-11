@@ -39,8 +39,8 @@ std::string dateStr() {
 
 std::string dateTime() {
     std::tm local = getLocalTime();
-    char text[64];
-    std::strftime(text, sizeof(text), "%A, %B %d, %Y", &local);
+    char text[128];
+    std::strftime(text, sizeof(text), config.dateFormat.c_str(), &local);
     return std::string(text) + " | " + timeStr();
 }
 

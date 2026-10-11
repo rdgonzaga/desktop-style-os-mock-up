@@ -6,6 +6,7 @@ namespace taskbar {
 
 inline constexpr float HEIGHT = 40.0f;
 
+void init();
 ImVec2 workMin();
 ImVec2 workMax();
 

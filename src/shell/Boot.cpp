@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <iterator>
 #include <string>
+#include <vector>
 
 #include "imgui.h"
 
@@ -18,25 +19,31 @@ namespace {
 
 enum class Stage { Bios, Splash };
 
-const char* BIOS_HEADER[] = {
-    "CSOPESY Megatrends BIOS v1.0",
-    "Copyright (C) 2026, CSOPESY Megatrends, Inc.",
-    "",
-    "CSOPESY-PC BIOS Date: 09/18/26",
-    "CPU : Intel(R) Pentium(R) III CPU 1000MHz",
-    "Speed : 1000 MHz",
-    "",
-};
+std::vector<std::string> biosHeader() {
+    return {
+        "CSOPESY Megatrends BIOS v1.0",
+        "Copyright (C) 2026, CSOPESY Megatrends, Inc.",
+        "",
+        "CSOPESY-PC BIOS Date: 09/18/26",
+        "CPU : " + config.cpuName,
+        "",
+    };
+}
 
-const char* BIOS_DRIVES[] = {
-    "",
-    "Detecting Primary Master ..... CSOPESY HDD 40GB",
-    "Detecting Primary Slave ...... None",
-    "Detecting Secondary Master ... CD-ROM",
-    "Detecting Secondary Slave .... None",
-    "",
-    "Fun fact: the first computer bug was a real moth, taped into a logbook in 1947.",
-};
+std::vector<std::string> biosDrives() {
+    std::vector<std::string> lines = {
+        "",
+        "Detecting Primary Master ..... CSOPESY HDD 40GB",
+        "Detecting Primary Slave ...... None",
+        "Detecting Secondary Master ... CD-ROM",
+        "Detecting Secondary Slave .... None",
+    };
+    if (!config.funFact.empty()) {
+        lines.push_back("");
+        lines.push_back("Fun fact: " + config.funFact);
+    }
+    return lines;
+}
 
 const char* LOGO[] = {
     R"(  ____   ____     ___    ____    _____   ____   __   __)",
@@ -51,9 +58,7 @@ const char* CREDITS = "Rainer Gonzaga  |  Aaron James Gonzales  |  Mariel Yasumu
 const float LINE_SECONDS = 0.15f;
 const float DRIVE_SECONDS = 0.35f;
 const float MEMORY_SECONDS = 1.5f;
-const int MEMORY_KB = 64000;
 const float BIOS_HOLD_SECONDS = 1.2f;
-const float SPLASH_SECONDS = 3.5f;
 const float SHUTDOWN_SECONDS = 2.5f;
 const float BIOS_TEXT = 20.0f;
 
@@ -68,7 +73,7 @@ double stageStart = -1.0;
 double shutdownStart = -1.0;
 
 float biosSeconds() {
-    return std::size(BIOS_HEADER) * LINE_SECONDS + MEMORY_SECONDS + std::size(BIOS_DRIVES) * DRIVE_SECONDS +
+    return biosHeader().size() * LINE_SECONDS + MEMORY_SECONDS + biosDrives().size() * DRIVE_SECONDS +
            BIOS_HOLD_SECONDS;
 }
 
@@ -98,8 +103,8 @@ void drawBios(ImDrawList* draw, ImVec2 screen, float elapsed) {
     ImFont* font = theme::mono();
     float line = BIOS_TEXT * 1.25f;
     ImVec2 pos(40, 36);
-    auto print = [&](const char* text, ImU32 color) {
-        draw->AddText(font, BIOS_TEXT, pos, color, text);
+    auto print = [&](const std::string& text, ImU32 color) {
+        draw->AddText(font, BIOS_TEXT, pos, color, text.c_str());
         pos.y += line;
     };
 
@@ -108,27 +113,33 @@ void drawBios(ImDrawList* draw, ImVec2 screen, float elapsed) {
     draw->AddText(font, BIOS_TEXT, badge + ImVec2(30, 10), IM_COL32(60, 200, 90, 255), "CSOPESY");
     draw->AddText(font, BIOS_TEXT * 0.7f, badge + ImVec2(30, 36), IM_COL32(60, 200, 90, 255), "Energy Ally");
 
-    int header = visibleLines(elapsed, LINE_SECONDS, static_cast<int>(std::size(BIOS_HEADER)));
+    std::vector<std::string> headerLines = biosHeader();
+    int header = visibleLines(elapsed, LINE_SECONDS, static_cast<int>(headerLines.size()));
     for (int i = 0; i < header; i++) {
-        print(BIOS_HEADER[i], i == 0 ? WHITE : GRAY);
+        print(headerLines[i], i == 0 ? WHITE : GRAY);
     }
-    float afterHeader = elapsed - std::size(BIOS_HEADER) * LINE_SECONDS;
+    float afterHeader = elapsed - headerLines.size() * LINE_SECONDS;
     if (afterHeader < 0) {
         return;
     }
 
-    int kb = std::min(MEMORY_KB, static_cast<int>(afterHeader / MEMORY_SECONDS * MEMORY_KB) / 64 * 64);
+    int total = config.biosMemoryKb;
+    int kb = static_cast<int>(std::min(1.0f, afterHeader / MEMORY_SECONDS) * total) / 64 * 64;
+    if (afterHeader >= MEMORY_SECONDS) {
+        kb = total;
+    }
     char memory[48];
-    std::snprintf(memory, sizeof(memory), "Memory Test : %dK%s", kb, kb == MEMORY_KB ? " OK" : "");
+    std::snprintf(memory, sizeof(memory), "Memory Test : %dK%s", kb, kb == total ? " OK" : "");
     print(memory, GRAY);
     float afterMemory = afterHeader - MEMORY_SECONDS;
     if (afterMemory < 0) {
         return;
     }
 
-    int drives = visibleLines(afterMemory, DRIVE_SECONDS, static_cast<int>(std::size(BIOS_DRIVES)));
+    std::vector<std::string> driveLines = biosDrives();
+    int drives = visibleLines(afterMemory, DRIVE_SECONDS, static_cast<int>(driveLines.size()));
     for (int i = 0; i < drives; i++) {
-        print(BIOS_DRIVES[i], GRAY);
+        print(driveLines[i], GRAY);
     }
 
     draw->AddText(font, BIOS_TEXT, ImVec2(40, screen.y - 50), DIM, "Press any key or click to skip");
@@ -188,7 +199,7 @@ void draw() {
     } else {
         drawSplash(draw, screen, elapsed);
     }
-    float duration = stage == Stage::Bios ? biosSeconds() : SPLASH_SECONDS;
+    float duration = stage == Stage::Bios ? biosSeconds() : config.splashSeconds;
     if (elapsed >= duration || skipPressed()) {
         nextStage();
     }

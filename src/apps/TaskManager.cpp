@@ -1,12 +1,17 @@
 #include "apps/TaskManager.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <iterator>
 #include <random>
+#include <sstream>
 
 #include "imgui.h"
 
+#include "Config.h"
 #include "core/Apps.h"
 
 namespace taskmanager {
@@ -27,7 +32,6 @@ struct Totals {
     float network = 0.0f;
 };
 
-const float TOTAL_MEMORY_MB = 8192.0f;
 const float DISK_LIMIT_MBS = 100.0f;
 const float NETWORK_LIMIT_MBPS = 100.0f;
 const int HISTORY = 60;
@@ -74,6 +78,62 @@ std::vector<float> memoryHistory(HISTORY, 0.0f);
 double lastTick = -1.0;
 int speed = 1;
 std::string selected;
+
+float totalMemoryMb() {
+    return static_cast<float>(config.totalMemoryMb);
+}
+
+std::string trim(const std::string& s) {
+    size_t start = s.find_first_not_of(" \t\r");
+    if (start == std::string::npos) {
+        return "";
+    }
+    return s.substr(start, s.find_last_not_of(" \t\r") - start + 1);
+}
+
+bool parseUsage(const std::string& text, float& out) {
+    char* end = nullptr;
+    float number = std::strtof(text.c_str(), &end);
+    if (text.empty() || *end != '\0' || number < 0.0f || number > 1000000.0f) {
+        return false;
+    }
+    out = number;
+    return true;
+}
+
+bool parseProcess(const std::string& line, Tracked& out) {
+    std::vector<std::string> fields;
+    std::stringstream stream(line);
+    std::string field;
+    while (std::getline(stream, field, ',')) {
+        fields.push_back(trim(field));
+    }
+    if (fields.size() < 5 || fields.size() > 6 || fields[0].empty()) {
+        return false;
+    }
+    float usage[4];
+    for (int i = 0; i < 4; i++) {
+        if (!parseUsage(fields[i + 1], usage[i])) {
+            return false;
+        }
+    }
+    bool suspended = false;
+    if (fields.size() == 6) {
+        std::string status = fields[5];
+        for (char& c : status) {
+            c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+        if (status != "suspended" && status != "running") {
+            return false;
+        }
+        suspended = status == "suspended";
+    }
+    if (suspended) {
+        usage[0] = usage[2] = usage[3] = 0.0f;
+    }
+    out = background(fields[0].c_str(), std::min(usage[0], 100.0f), usage[1], usage[2], usage[3], suspended);
+    return true;
+}
 
 float randomBetween(float low, float high) {
     return std::uniform_real_distribution<float>(low, high)(rng);
@@ -125,7 +185,7 @@ Totals percentTotals(const std::vector<Process>& list) {
         sum.network += process.network;
     }
     sum.cpu = std::min(sum.cpu, 100.0f);
-    sum.memory = std::min(sum.memory / TOTAL_MEMORY_MB * 100.0f, 100.0f);
+    sum.memory = std::min(sum.memory / totalMemoryMb() * 100.0f, 100.0f);
     sum.disk = std::min(sum.disk / DISK_LIMIT_MBS * 100.0f, 100.0f);
     sum.network = std::min(sum.network / NETWORK_LIMIT_MBPS * 100.0f, 100.0f);
     return sum;
@@ -349,17 +409,20 @@ void graph(const char* title, const char* subtitle, const std::vector<float>& hi
 
 void performanceTab() {
     Totals total = percentTotals(processes());
-    float usedGb = total.memory / 100.0f * TOTAL_MEMORY_MB / 1024.0f;
+    float totalGb = totalMemoryMb() / 1024.0f;
+    float usedGb = total.memory / 100.0f * totalGb;
     char cpuText[48];
     char memoryText[64];
+    char memorySize[32];
     std::snprintf(cpuText, sizeof(cpuText), "Utilization %.0f%%", total.cpu);
-    std::snprintf(memoryText, sizeof(memoryText), "In use %.1f GB of %.0f GB (%.0f%%)", usedGb,
-                  TOTAL_MEMORY_MB / 1024.0f, total.memory);
+    std::snprintf(memoryText, sizeof(memoryText), "In use %.1f GB of %.1f GB (%.0f%%)", usedGb, totalGb,
+                  total.memory);
+    std::snprintf(memorySize, sizeof(memorySize), "%.1f GB", totalGb);
 
     ImGui::PushStyleColor(ImGuiCol_PlotLines, GRAPH_LINE);
-    graph("CPU", "Intel(R) Pentium(R) III CPU 1000MHz", cpuHistory, cpuText);
+    graph("CPU", config.cpuName.c_str(), cpuHistory, cpuText);
     ImGui::Spacing();
-    graph("Memory", "8.0 GB", memoryHistory, memoryText);
+    graph("Memory", memorySize, memoryHistory, memoryText);
     ImGui::PopStyleColor();
 
     ImGui::Spacing();
@@ -369,6 +432,43 @@ void performanceTab() {
                 seconds % 60);
 }
 
+}
+
+void init() {
+    speed = config.updateSpeed;
+
+    std::ifstream file(config.processFile);
+    if (!file) {
+        std::fprintf(stderr, "%s not found, using the built-in processes\n", config.processFile.c_str());
+        return;
+    }
+    backgroundRows.clear();
+    std::string line;
+    int number = 0;
+    while (std::getline(file, line)) {
+        number++;
+        if (number == 1 && line.rfind("\xEF\xBB\xBF", 0) == 0) {
+            line.erase(0, 3);
+        }
+        line = trim(line);
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+        Tracked row;
+        if (!parseProcess(line, row)) {
+            std::fprintf(stderr, "%s line %d: expected name, cpu, memory, disk, network[, suspended], ignored\n",
+                         config.processFile.c_str(), number);
+            continue;
+        }
+        bool taken = std::any_of(backgroundRows.begin(), backgroundRows.end(),
+                                 [&](const Tracked& other) { return other.base.name == row.base.name; });
+        if (taken) {
+            std::fprintf(stderr, "%s line %d: '%s' is already listed, ignored\n", config.processFile.c_str(), number,
+                         row.base.name.c_str());
+            continue;
+        }
+        backgroundRows.push_back(row);
+    }
 }
 
 std::vector<Process> processes() {

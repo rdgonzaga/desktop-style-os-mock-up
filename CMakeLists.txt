@@ -55,7 +55,8 @@ target_link_libraries(CsopesyOS PRIVATE imgui)
 
 add_custom_target(copy_runtime_files
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:CsopesyOS>/assets
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/config.txt $<TARGET_FILE_DIR:CsopesyOS>)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/config.txt ${CMAKE_SOURCE_DIR}/processes.txt
+            $<TARGET_FILE_DIR:CsopesyOS>)
 add_dependencies(CsopesyOS copy_runtime_files)
 
 if(MSVC)
