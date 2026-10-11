@@ -199,6 +199,10 @@ void loadConfig(const std::string& path) {
             valid = parseSize(value, config.explorerSize);
         } else if (key == "task_manager_size") {
             valid = parseSize(value, config.taskManagerSize);
+        } else if (key == "settings_size") {
+            valid = parseSize(value, config.settingsSize);
+        } else if (key == "notepad_size") {
+            valid = parseSize(value, config.notepadSize);
         } else if (key == "process_file") {
             valid = parseText(value, config.processFile);
         } else if (key == "total_memory_mb") {

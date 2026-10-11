@@ -12,6 +12,7 @@ ImVec2 workMax();
 
 void draw();
 void drawOverlays();
+void requestShutdown();
 
 bool isWifiEnabled();
 int getVolume();

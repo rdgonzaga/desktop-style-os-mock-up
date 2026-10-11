@@ -4,6 +4,8 @@
 #include <cctype>
 
 #include "apps/FileExplorer.h"
+#include "apps/Notepad.h"
+#include "apps/Settings.h"
 #include "apps/TaskManager.h"
 #include "apps/Terminal.h"
 #include "core/Theme.h"
@@ -17,6 +19,8 @@ std::vector<App> table = {
     {"Terminal", Icon::Terminal, &config.terminalSize, terminal::draw},
     {"File Explorer", Icon::Folder, &config.explorerSize, explorer::draw},
     {"Task Manager", Icon::TaskManager, &config.taskManagerSize, taskmanager::draw, ImGuiWindowFlags_MenuBar},
+    {"Notepad", Icon::Notepad, &config.notepadSize, notepad::draw, ImGuiWindowFlags_MenuBar},
+    {"Settings", Icon::Settings, &config.settingsSize, settings::draw},
 };
 
 const App* active = nullptr;

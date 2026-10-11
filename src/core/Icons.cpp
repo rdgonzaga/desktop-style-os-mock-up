@@ -1,5 +1,7 @@
 #include "core/Icons.h"
 
+#include <cmath>
+
 namespace {
 
 const ImU32 GREEN = IM_COL32(80, 230, 90, 255);
@@ -76,6 +78,29 @@ void drawDrive(ImDrawList* draw, ImVec2 c, float s) {
     draw->AddRectFilled(p(-11, 4), p(-6, 7), IM_COL32(60, 180, 75, 255));
 }
 
+void drawSettings(ImDrawList* draw, ImVec2 c, float s) {
+    ImU32 gear = IM_COL32(150, 160, 175, 255);
+    for (int i = 0; i < 8; i++) {
+        float angle = i * 3.14159265f / 4;
+        ImVec2 dir(std::cos(angle), std::sin(angle));
+        draw->AddLine(ImVec2(c.x + dir.x * 7 * s, c.y + dir.y * 7 * s), ImVec2(c.x + dir.x * 13 * s, c.y + dir.y * 13 * s),
+                      gear, 5.0f * s);
+    }
+    draw->AddCircleFilled(c, 10 * s, gear);
+    draw->AddCircleFilled(c, 4.5f * s, IM_COL32(40, 40, 40, 255));
+}
+
+void drawNotepad(ImDrawList* draw, ImVec2 c, float s) {
+    auto p = [&](float x, float y) { return ImVec2(c.x + x * s, c.y + y * s); };
+    draw->AddRectFilled(p(-11, -12), p(11, 13), WHITE, 2 * s);
+    draw->AddRectFilled(p(-11, -12), p(11, -7), IM_COL32(60, 150, 230, 255), 2 * s, ImDrawFlags_RoundCornersTop);
+    draw->AddRect(p(-11, -12), p(11, 13), OUTLINE, 2 * s, 1.2f * s);
+    for (int i = 0; i < 4; i++) {
+        float y = -3.0f + i * 4.0f;
+        draw->AddLine(p(-7, y), p(i == 3 ? 2.0f : 7.0f, y), IM_COL32(140, 140, 140, 255), 1.2f * s);
+    }
+}
+
 }
 
 void drawIcon(ImDrawList* draw, Icon icon, ImVec2 center, float size) {
@@ -101,6 +126,12 @@ void drawIcon(ImDrawList* draw, Icon icon, ImVec2 center, float size) {
         break;
     case Icon::Computer:
         drawComputer(draw, center, scale);
+        break;
+    case Icon::Settings:
+        drawSettings(draw, center, scale);
+        break;
+    case Icon::Notepad:
+        drawNotepad(draw, center, scale);
         break;
     }
 }

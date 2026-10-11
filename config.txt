@@ -41,6 +41,8 @@ night_light = false
 terminal_size = 640x400
 file_explorer_size = 820x480
 task_manager_size = 780x500
+notepad_size = 600x420
+settings_size = 560x480
 
 # Task Manager: background processes file, total RAM, update speed (high, normal, low, paused)
 process_file = processes.txt

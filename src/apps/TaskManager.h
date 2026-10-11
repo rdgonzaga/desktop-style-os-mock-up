@@ -19,6 +19,7 @@ struct Process {
 
 void init();
 std::vector<Process> processes();
+bool endTask(const std::string& name);
 void draw();
 
 }

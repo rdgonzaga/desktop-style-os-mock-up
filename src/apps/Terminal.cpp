@@ -150,6 +150,47 @@ void cmdIpconfig(const std::string&) {
     }
 }
 
+void cmdKill(const std::string& args) {
+    if (args.empty()) {
+        print("Usage: kill <process>");
+        return;
+    }
+    std::string wanted = toLower(args);
+    std::vector<std::string> matches;
+    for (const taskmanager::Process& process : taskmanager::processes()) {
+        std::string name = toLower(process.name);
+        if (name == wanted) {
+            matches = {process.name};
+            break;
+        }
+        if (name.find(wanted) != std::string::npos) {
+            matches.push_back(process.name);
+        }
+    }
+    if (matches.empty()) {
+        print("ERROR: no running process matches '" + args + "'. Type 'ps' to see them.");
+        return;
+    }
+    if (matches.size() > 1) {
+        print("'" + args + "' matches more than one process:");
+        for (const std::string& name : matches) {
+            print("  " + name);
+        }
+        return;
+    }
+    std::string name = matches[0];
+    taskmanager::endTask(name);
+    print("SUCCESS: ended \"" + name + "\".");
+    if (name == "Terminal") {
+        started = false;
+    }
+}
+
+void cmdShutdown(const std::string&) {
+    print("Opening the shut down dialog...");
+    taskbar::requestShutdown();
+}
+
 void cmdExit(const std::string&) {
     if (App* self = apps::find("Terminal")) {
         apps::close(*self);
@@ -169,6 +210,8 @@ const std::vector<Command>& commands() {
         {"open",     "open <app>",  "opens an app, e.g. open task manager",  cmdOpen},
         {"ping",     "ping <host>", "tests network connectivity",            cmdPing},
         {"ipconfig", "ipconfig",    "displays network IP configuration",     cmdIpconfig},
+        {"kill",     "kill <name>", "ends a process, like End task",         cmdKill},
+        {"shutdown", "shutdown",    "opens the shut down dialog",            cmdShutdown},
         {"exit",     "exit",        "closes the terminal",                   cmdExit},
     };
     return table;

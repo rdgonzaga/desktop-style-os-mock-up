@@ -470,6 +470,10 @@ void shutdownDialog() {
 
 }
 
+void requestShutdown() {
+    shutdownRequested = true;
+}
+
 void init() {
     volumeLevel = config.volume;
     brightnessLevel = config.brightness;

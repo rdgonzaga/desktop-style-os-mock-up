@@ -8,6 +8,7 @@
 #include <iterator>
 #include <random>
 #include <sstream>
+#include <utility>
 
 #include "imgui.h"
 
@@ -40,11 +41,51 @@ const float APP_USAGE[][4] = {
     {1.6f, 32.5f, 0.1f, 0.0f},
     {0.8f, 41.2f, 0.3f, 0.0f},
     {2.4f, 27.8f, 0.0f, 0.1f},
+    {0.3f, 12.4f, 0.0f, 0.0f},
+    {0.5f, 18.9f, 0.0f, 0.0f},
+};
+
+struct StartupItem {
+    const char* name;
+    const char* publisher;
+    bool enabled;
+    const char* impact;
+};
+
+const StartupItem STARTUP[] = {
+    {"CSOPESY Update Notifier", "CSOPESY Group", true, "Low"},
+    {"Discord", "Discord Inc.", false, "High"},
+    {"OneDrive", "Microsoft Corporation", true, "Medium"},
+    {"Realtek HD Audio Manager", "Realtek Semiconductor", true, "Low"},
+    {"Spotify", "Spotify AB", false, "Medium"},
+    {"Steam Client Bootstrapper", "Valve Corporation", false, "High"},
+    {"Windows Security notification icon", "Microsoft Corporation", true, "Low"},
+};
+
+struct Service {
+    const char* name;
+    int pid;
+    const char* description;
+    bool running;
+    const char* group;
+};
+
+const Service SERVICES[] = {
+    {"AudioEndpointBuilder", 1484, "Windows Audio Endpoint Builder", true, "LocalSystemNetworkRestricted"},
+    {"Audiosrv", 2316, "Windows Audio", true, "LocalServiceNetworkRestricted"},
+    {"BITS", 0, "Background Intelligent Transfer Service", false, "netsvcs"},
+    {"Dhcp", 1652, "DHCP Client", true, "LocalServiceNetworkRestricted"},
+    {"Dnscache", 2088, "DNS Client", true, "NetworkService"},
+    {"EventLog", 1736, "Windows Event Log", true, "LocalServiceNetworkRestricted"},
+    {"Spooler", 3120, "Print Spooler", true, ""},
+    {"Themes", 1880, "Themes", true, "netsvcs"},
+    {"W32Time", 0, "Windows Time", false, "LocalService"},
+    {"WinDefend", 3544, "Microsoft Defender Antivirus Service", true, ""},
+    {"wuauserv", 0, "Windows Update", false, "netsvcs"},
 };
 
 const char* SPEED_NAMES[] = {"High", "Normal", "Low", "Paused"};
 const float SPEED_SECONDS[] = {0.5f, 1.0f, 4.0f, 0.0f};
-const char* PLACEHOLDER_TABS[] = {"App history", "Startup", "Users", "Details", "Services"};
 
 const ImU32 GROUP_TEXT = IM_COL32(96, 175, 255, 255);
 const ImU32 GRAPH_LINE = IM_COL32(0, 150, 240, 255);
@@ -215,18 +256,6 @@ void update() {
     if (lastTick < 0.0 || (every > 0.0f && ImGui::GetTime() - lastTick >= every)) {
         tick();
     }
-}
-
-void endTask(const std::string& name) {
-    for (App& app : apps::all()) {
-        if (name == app.name) {
-            apps::close(app);
-            return;
-        }
-    }
-    backgroundRows.erase(std::remove_if(backgroundRows.begin(), backgroundRows.end(),
-                                        [&](const Tracked& row) { return row.now.name == name; }),
-                         backgroundRows.end());
 }
 
 int compare(const Process& a, const Process& b, ImGuiID column) {
@@ -432,6 +461,183 @@ void performanceTab() {
                 seconds % 60);
 }
 
+bool beginList(const char* id, int columns) {
+    ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV |
+                            ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg;
+    if (!ImGui::BeginTable(id, columns, flags)) {
+        return false;
+    }
+    ImGui::TableSetupScrollFreeze(0, 1);
+    return true;
+}
+
+void cell(const char* text) {
+    ImGui::TableNextColumn();
+    ImGui::TextUnformatted(text);
+}
+
+void nameCell(Icon icon, const char* name) {
+    ImGui::TableNextColumn();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    drawIcon(ImGui::GetWindowDrawList(), icon, ImVec2(pos.x + 9, pos.y + ImGui::GetTextLineHeight() / 2), 18.0f);
+    ImGui::SetCursorScreenPos(ImVec2(pos.x + 24, pos.y));
+    ImGui::TextUnformatted(name);
+}
+
+void rightCell(const char* format, float value) {
+    ImGui::TableNextColumn();
+    char text[32];
+    std::snprintf(text, sizeof(text), format, value);
+    rightAligned(text);
+}
+
+std::string clockText(int seconds) {
+    char text[16];
+    std::snprintf(text, sizeof(text), "%d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60);
+    return text;
+}
+
+int pidOf(const std::string& name) {
+    static std::vector<std::string> seen;
+    auto found = std::find(seen.begin(), seen.end(), name);
+    if (found == seen.end()) {
+        seen.push_back(name);
+        found = seen.end() - 1;
+    }
+    return 1024 + static_cast<int>(found - seen.begin()) * 236 % 9000;
+}
+
+std::string exeName(const std::string& name) {
+    std::string out;
+    for (char c : name) {
+        if (std::isalnum(static_cast<unsigned char>(c))) {
+            out += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+    }
+    return out + ".exe";
+}
+
+void appHistoryTab() {
+    ImGui::TextDisabled("Resource usage since the OS started.");
+    if (!beginList("history", 4)) {
+        return;
+    }
+    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("CPU time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+    ImGui::TableSetupColumn("Network", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+    ImGui::TableSetupColumn("Tile updates", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+    ImGui::TableHeadersRow();
+
+    float uptime = static_cast<float>(ImGui::GetTime());
+    std::vector<App>& table = apps::all();
+    for (size_t i = 0; i < table.size(); i++) {
+        const float* usage = APP_USAGE[i % std::size(APP_USAGE)];
+        ImGui::TableNextRow();
+        nameCell(table[i].icon, table[i].name);
+        cell(clockText(static_cast<int>(uptime * usage[0] / 10.0f)).c_str());
+        rightCell("%.1f MB", uptime * (usage[3] + 0.02f));
+        rightCell("%.1f MB", 0.0f);
+    }
+    ImGui::EndTable();
+}
+
+void startupTab() {
+    if (!beginList("startup", 4)) {
+        return;
+    }
+    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Publisher", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+    ImGui::TableSetupColumn("Startup impact", ImGuiTableColumnFlags_WidthFixed, 110.0f);
+    ImGui::TableHeadersRow();
+    for (const StartupItem& item : STARTUP) {
+        ImGui::TableNextRow();
+        nameCell(Icon::Window, item.name);
+        cell(item.publisher);
+        cell(item.enabled ? "Enabled" : "Disabled");
+        cell(item.enabled ? item.impact : "Not measured");
+    }
+    ImGui::EndTable();
+}
+
+void usersTab() {
+    std::vector<Process> list = processes();
+    if (!beginList("users", 5)) {
+        return;
+    }
+    ImGui::TableSetupColumn("User", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+    ImGui::TableSetupColumn("CPU", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+    ImGui::TableSetupColumn("Memory", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+    ImGui::TableSetupColumn("Network", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+    ImGui::TableHeadersRow();
+
+    Totals sum;
+    for (const Process& process : list) {
+        sum.cpu += process.cpu;
+        sum.memory += process.memory;
+        sum.network += process.network;
+    }
+    char user[96];
+    std::snprintf(user, sizeof(user), "%s (%d)", config.userName.c_str(), static_cast<int>(list.size()));
+    ImGui::TableNextRow();
+    nameCell(Icon::Computer, user);
+    cell("Active");
+    rightCell("%.1f%%", std::min(sum.cpu, 100.0f));
+    rightCell("%.1f MB", sum.memory);
+    rightCell("%.1f Mbps", sum.network);
+    ImGui::EndTable();
+}
+
+void detailsTab() {
+    std::vector<Process> list = processes();
+    std::sort(list.begin(), list.end(), [](const Process& a, const Process& b) { return exeName(a.name) < exeName(b.name); });
+    if (!beginList("details", 6)) {
+        return;
+    }
+    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 190.0f);
+    ImGui::TableSetupColumn("PID", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+    ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+    ImGui::TableSetupColumn("User name", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+    ImGui::TableSetupColumn("CPU", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+    ImGui::TableSetupColumn("Description", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableHeadersRow();
+
+    for (const Process& process : list) {
+        std::vector<App>& table = apps::all();
+        bool app = std::any_of(table.begin(), table.end(), [&](const App& a) { return process.name == a.name; });
+        ImGui::TableNextRow();
+        nameCell(process.icon, exeName(process.name).c_str());
+        cell(std::to_string(pidOf(process.name)).c_str());
+        cell(process.suspended ? "Suspended" : "Running");
+        cell(app ? config.userName.c_str() : "SYSTEM");
+        rightCell("%02.0f", process.cpu);
+        cell(process.name.c_str());
+    }
+    ImGui::EndTable();
+}
+
+void servicesTab() {
+    if (!beginList("services", 5)) {
+        return;
+    }
+    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+    ImGui::TableSetupColumn("PID", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+    ImGui::TableSetupColumn("Description", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+    ImGui::TableSetupColumn("Group", ImGuiTableColumnFlags_WidthFixed, 190.0f);
+    ImGui::TableHeadersRow();
+    for (const Service& service : SERVICES) {
+        ImGui::TableNextRow();
+        cell(service.name);
+        cell(service.running ? std::to_string(service.pid).c_str() : "");
+        cell(service.description);
+        cell(service.running ? "Running" : "Stopped");
+        cell(service.group);
+    }
+    ImGui::EndTable();
+}
+
 }
 
 void init() {
@@ -471,6 +677,20 @@ void init() {
     }
 }
 
+bool endTask(const std::string& name) {
+    for (App& app : apps::all()) {
+        if (name == app.name && app.open) {
+            apps::close(app);
+            return true;
+        }
+    }
+    size_t before = backgroundRows.size();
+    backgroundRows.erase(std::remove_if(backgroundRows.begin(), backgroundRows.end(),
+                                        [&](const Tracked& row) { return row.now.name == name; }),
+                         backgroundRows.end());
+    return backgroundRows.size() != before;
+}
+
 std::vector<Process> processes() {
     std::vector<Process> list = openApps();
     for (const Tracked& row : backgroundRows) {
@@ -493,9 +713,13 @@ void draw() {
         performanceTab();
         ImGui::EndTabItem();
     }
-    for (const char* tab : PLACEHOLDER_TABS) {
-        if (ImGui::BeginTabItem(tab)) {
-            ImGui::TextDisabled("Nothing to show here yet.");
+    const std::pair<const char*, void (*)()> tabs[] = {
+        {"App history", appHistoryTab}, {"Startup", startupTab}, {"Users", usersTab},
+        {"Details", detailsTab},        {"Services", servicesTab},
+    };
+    for (const auto& [title, drawTab] : tabs) {
+        if (ImGui::BeginTabItem(title)) {
+            drawTab();
             ImGui::EndTabItem();
         }
     }

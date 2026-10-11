@@ -67,6 +67,8 @@ const Shortcut SHORTCUTS[] = {
     {"File Explorer", Icon::Folder, "File Explorer"},
     {"Terminal", Icon::Terminal, "Terminal"},
     {"Task Manager", Icon::TaskManager, "Task Manager"},
+    {"Notepad", Icon::Notepad, "Notepad"},
+    {"Settings", Icon::Settings, "Settings"},
 };
 
 int selectedShortcut = -1;

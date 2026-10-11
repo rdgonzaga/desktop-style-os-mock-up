@@ -35,6 +35,8 @@ struct Config {
     WindowSize terminalSize{640, 400};
     WindowSize explorerSize{820, 480};
     WindowSize taskManagerSize{780, 500};
+    WindowSize settingsSize{560, 480};
+    WindowSize notepadSize{600, 420};
 
     std::string processFile = "processes.txt";
     int totalMemoryMb = 8192;

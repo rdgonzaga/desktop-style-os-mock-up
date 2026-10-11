@@ -39,6 +39,8 @@ add_executable(CsopesyOS
     src/main.cpp
     src/Config.cpp
     src/apps/FileExplorer.cpp
+    src/apps/Notepad.cpp
+    src/apps/Settings.cpp
     src/apps/TaskManager.cpp
     src/apps/Terminal.cpp
     src/core/Apps.cpp
