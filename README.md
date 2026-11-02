@@ -1,7 +1,5 @@
 # CSOPESY Desktop-Style OS Mock-up
 
-> **Archived.** This was Semi-Major Output 2 for CSOPESY (DLSU, 2026). It's kept read-only for reference and isn't maintained.
-
 A fake desktop OS in C++: boot screens, a taskbar with quick settings, draggable windows, and five apps (Terminal, File Explorer, Task Manager, Notepad, Settings). Everything is driven by two text files, so you can reshape it without recompiling.
 
 ![Desktop](docs/desktop.png)
